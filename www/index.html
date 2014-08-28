@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset='utf-8'> 
+  <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width">
+  <script src="http://maps.google.com/maps/api/js?sensor=false"></script>
+  <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.0.7/angular.min.js"></script>
+  <title>FeedHenry Todo Maps</title>
+  <link rel="stylesheet" type="text/css" href="css/main.css">
+</head>
+<body ng-app="fhMap">
+
+  <div class="googleMap" todo-maps="" latitude="52.251168" longitude="-7.153220"></div>
+
+  <script type="text/html" id="todosControlTemplate">
+    <section class="ctrPanel"> 
+      <header>
+        <h3>Todo Maps</h3>
+        <img src="img/fh_logo.png" alt="FeedHenry" id="logo"> 
+        <div class="statusList">
+          <ul>
+            <li ng-class="{location.path() == '/'} "><a href="#/">All</a></li>
+            <li ng-class="{location.path() == '/active'}"><a href="#/active">Active</a></li>
+            <li ng-class="{location.path() == '/completed'}"><a href="#/completed">Completed</a></li>
+          </ul>
+        </div>
+      </header>
+      <section ng-show="todos.filtered().length" class="statusList">
+        <ul>
+          <li ng-repeat="todo in todos.filtered()" ng-class="{completed: todo.completed}">
+            <div>
+              <input type="checkbox" ng-model="todo.completed">
+              <label 
+                ng-click="controls.openInfoWindowByTodoId(todo.id)"
+                ng-dblclick="controls.editTodoById(todo.id)">{{todo.title}}</label>
+            </div>
+          </li>
+        </ul>
+      </section>
+      <footer>
+        <span ng-show="todos.remainingCount()">
+          <strong>{{todos.remainingCount()}}</strong>
+          <span ng-pluralize count="todos.remainingCount()" when="{ one: 'item left', other: 'items left' }"></span>
+        </span>
+        <hr />
+        <button class="clrBtn" ng-click="todos.prune()" ng-show="todos.remainingCount() < todos.items.length">
+          Clear completed ({{todos.items.length - todos.remainingCount()}})
+        </button>
+        <button class="newBtn" ng-click="controls.newTodo()" ng-hide="controls.editTodo">New</button>
+      </footer>
+    </section>
+  </script>
+
+  <script type="text/html" id="infoWindowTemplate">
+    <div class="googleMap">
+      <h3>{{infow.data.title}}</h3>
+      <p ng-show="infow.data.desc">{{infow.data.desc}}</p>
+      <div style="clear: both;"></div>
+    </div>
+  </script>
+
+  <script type="text/html" id="editTodoControlTemplate">
+    <div class="ctrPanel" ng-show="controls.editTodo" ng-controller="EditTodoCtrl">
+      <form name="editTodoForm" class="myForm" ng-submit="submitTodo()">
+        <fieldset>
+          <label for="title">Title:</label>
+          <input id="title" class="myFormInputs" type="text" ng-model="editTodo.title" ng-maxlength="30" required> </br>
+          <label for="description">Description:</label>
+          <input id="description" class="myFormInputs" type="text" ng-model="editTodo.desc"> </br>
+          <label for="latitude">Latitude:</label>
+          <input id="latitude" class="myFormInputs" type="text" ng-model="editTodo.lat"> </br>
+          <label for="longitude">Longitude:</label>
+          <input id="longitude" class="myFormInputs" type="text" ng-model="editTodo.lng"> </br>
+          <div ng-show="editTodo.id !== -1">
+            <label for="completed">Completed:</label>
+            <input id="completed" type="checkbox" ng-model="editTodo.comp">
+          </div>
+          <button class="newBtn myFormInputs" type="submit">{{editTodo.saveMsg}}</button>
+          <button class="clrBtn" ng-click="resetCloseTodoForm()">{{editTodo.cancelMsg}}</button>
+        </fieldset>
+      </form>
+    </div>
+  </script>
+
+      <!-- View Entry Point -->
+    <div id="app" class="container-fluid" ng-cloak ng-view></div>
+
+        <!-- Import Angular Dependencies -->
+    <script src="app/controllers.js"></script>
+    <script src="app/directives.js"></script>
+    <script src="app/services.js"></script>
+    <script src="app/filters.js"></script>
+
+    <!-- Client App entry Point -->
+    <script src="app/app.js"></script>
+</body>
+</html>
